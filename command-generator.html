@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>XMRig Command Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0b0f14;
+    --card: #121820;
+    --line: #1e2a38;
+    --text: #e8eef5;
+    --muted: #8b9bb0;
+    --green: #3dd68c;
+    --amber: #f5b942;
+    --blue: #5b9dff;
+    --input: #0a0e13;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "DM Sans", system-ui, sans-serif;
+    background: radial-gradient(900px 500px at 0% 0%, #152238 0%, transparent 50%),
+                radial-gradient(800px 400px at 100% 0%, #1a1530 0%, transparent 45%),
+                var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 20px 16px 40px;
+  }
+  .wrap { max-width: 820px; margin: 0 auto; }
+  h1 { font-size: 1.45rem; font-weight: 700; margin-bottom: 4px; }
+  .sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 18px; line-height: 1.4; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 16px 18px;
+    margin-bottom: 14px;
+  }
+  .card h2 {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--muted);
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+  .grid {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: 1fr 1fr;
+  }
+  @media (max-width: 600px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+  .full { grid-column: 1 / -1; }
+  label {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-bottom: 5px;
+    font-weight: 500;
+  }
+  input, select {
+    width: 100%;
+    background: var(--input);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.82rem;
+    padding: 10px 12px;
+    outline: none;
+  }
+  input:focus, select:focus { border-color: var(--blue); }
+  .row-check {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px 20px;
+    align-items: center;
+    margin-top: 4px;
+  }
+  .chk {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.88rem;
+    color: var(--text);
+    cursor: pointer;
+    user-select: none;
+  }
+  .chk input { width: auto; accent-color: var(--blue); }
+  .btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 4px;
+  }
+  button {
+    font-family: "DM Sans", sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border: none;
+    border-radius: 10px;
+    padding: 11px 18px;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  button:active { transform: scale(0.98); }
+  .btn-main {
+    background: linear-gradient(135deg, #3d8bfd, #5b9dff);
+    color: #fff;
+    flex: 1;
+    min-width: 140px;
+  }
+  .btn-main:hover { opacity: 0.92; }
+  .btn-copy {
+    background: rgba(61, 214, 140, 0.15);
+    color: var(--green);
+    border: 1px solid rgba(61, 214, 140, 0.35);
+  }
+  .btn-copy:hover { background: rgba(61, 214, 140, 0.25); }
+  .btn-copy.done {
+    background: rgba(61, 214, 140, 0.35);
+    color: #fff;
+  }
+  .hint {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-top: 8px;
+    line-height: 1.45;
+  }
+  .out-block {
+    margin-bottom: 14px;
+  }
+  .out-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .out-head span {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--amber);
+  }
+  .out-head small {
+    color: var(--muted);
+    font-weight: 400;
+    font-size: 0.72rem;
+  }
+  pre {
+    background: var(--input);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.72rem;
+    line-height: 1.55;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+    color: #c5d4e8;
+    max-height: 280px;
+    overflow-y: auto;
+  }
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: rgba(91, 157, 255, 0.15);
+    color: var(--blue);
+    margin-bottom: 10px;
+  }
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--green);
+    color: #062;
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding: 10px 18px;
+    border-radius: 999px;
+    opacity: 0;
+    transition: all 0.25s;
+    z-index: 99;
+    pointer-events: none;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  .hidden { display: none; }
+  .summary {
+    font-size: 0.88rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .summary strong { color: var(--text); }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="badge">XMRig · SupportXMR / C3Pool / HeroMiners ZEPH · Ubuntu</div>
+    <h1>Mining command generator</h1>
+    <p class="sub">Enter cores, worker name, and options → Generate → paste blocks in order on your VPS — or tick All‑in‑one for one single paste that does everything.</p>
+
+    <div class="card">
+      <h2>Settings</h2>
+      <div class="grid">
+        <div class="full">
+          <label id="walletLabel">Wallet address (XMR)</label>
+          <input id="wallet" type="text" spellcheck="false"
+            value="48J7Q5tSfms3SwXL7QnJ5e3CcDz8VmsZVhRuhrX45rzMKi8wotGqptZXzfqZXo7KXpD4xn1vsbQJP7XCazWPqyLZ7pzXByG" />
+        </div>
+        <div>
+          <label>Worker name (-p)</label>
+          <input id="worker" type="text" spellcheck="false" value="vps1" placeholder="vps1" />
+        </div>
+        <div>
+          <label>CPU threads / cores (-t)</label>
+          <input id="threads" type="number" min="1" max="128" value="4" />
+        </div>
+        <div>
+          <label>Mining pool</label>
+          <select id="poolPreset">
+            <option value="supportxmr" selected>SupportXMR (443 TLS)</option>
+            <option value="c3pool">C3Pool Auto (443, TLS)</option>
+            <option value="zephyr">HeroMiners Zephyr — ZEPH (1123)</option>
+          </select>
+          <input id="pool" type="hidden" value="pool.supportxmr.com:443" />
+        </div>
+        <div id="regionWrap" class="hidden">
+          <label>Miner location → fastest HeroMiners server</label>
+          <select id="region">
+            <option value="auto">⚡ Auto — detect this PC's country</option>
+            <optgroup label="Common miner locations">
+              <option value="pl">🇵🇱 Poland → Germany (de)</option>
+              <option value="ch">🇨🇭 Switzerland → Germany (de)</option>
+              <option value="gb">🇬🇧 UK → France (fr)</option>
+              <option value="sg">🇸🇬 Singapore → Singapore (sg)</option>
+              <option value="use">🇺🇸 US East → us2</option>
+              <option value="usw">🇺🇸 US West → us</option>
+            </optgroup>
+            <optgroup label="All HeroMiners regions">
+              <option value="de">de — Germany</option>
+              <option value="fr">fr — France</option>
+              <option value="es">es — Spain</option>
+              <option value="fi">fi — Finland</option>
+              <option value="ru">ru — Russia</option>
+              <option value="ca">ca — Canada</option>
+              <option value="us">us — USA West</option>
+              <option value="us2">us2 — USA East</option>
+              <option value="us3">us3 — USA South</option>
+              <option value="br">br — Brazil</option>
+              <option value="hk">hk — Hong Kong</option>
+              <option value="kr">kr — South Korea</option>
+              <option value="tr">tr — Turkey</option>
+              <option value="au">au — Australia</option>
+            </optgroup>
+          </select>
+          <p class="hint" id="regionStatus" style="margin-top:6px"></p>
+        </div>
+        <div>
+          <label>Huge pages (nr_hugepages)</label>
+          <input id="hugepages" type="number" min="0" max="8192" value="1280" />
+        </div>
+        <div>
+          <label>Tmux session name</label>
+          <input id="tmux" type="text" value="mine" spellcheck="false" />
+        </div>
+        <div>
+          <label>XMRig version</label>
+          <input id="version" type="text" value="6.22.0" spellcheck="false" />
+        </div>
+        <div class="full">
+          <label>Options</label>
+          <div class="row-check">
+            <label class="chk"><input type="checkbox" id="tls" checked /> TLS (--tls / -k)</label>
+            <label class="chk"><input type="checkbox" id="useHuge" checked /> Enable huge pages in miner</label>
+            <label class="chk"><input type="checkbox" id="useTmux" checked /> Include tmux steps</label>
+            <label class="chk"><input type="checkbox" id="rush" /> 30‑min trial rush (single block)</label>
+            <label class="chk"><input type="checkbox" id="allInOne" /> All‑in‑one: one paste does everything</label>
+            <label class="chk"><input type="checkbox" id="configMethod" /> Also generate config.json method</label>
+            <label class="chk"><input type="checkbox" id="maxhr" checked /> Max hashrate: run as root — MSR mod (up to +15%)</label>
+          </div>
+        </div>
+      </div>
+      <p class="hint">
+        Threads: 1 ≈ 25% · 2 ≈ 50% · 3 ≈ 75% · 4 = full on a 4‑core box. Huge pages 1280 is right for 8 GB RAM — don’t set millions.
+        ZEPH uses the same RandomX algorithm, so the same XMRig binary works. HeroMiners also has regional servers — Auto picks the fastest for the miner’s country.
+        Donation is disabled in every command (--donate-level 0); Max‑hashrate mode runs the miner as root to unlock the MSR mod (+up to 15%).
+      </p>
+      <div class="btns" style="margin-top:14px">
+        <button type="button" class="btn-main" id="genBtn">Generate commands</button>
+        <button type="button" class="btn-copy" id="copyAllBtn">Copy all</button>
+      </div>
+    </div>
+
+    <div id="results" class="hidden">
+      <div class="card">
+        <h2>Summary</h2>
+        <p class="summary" id="summary"></p>
+      </div>
+      <div class="card" id="blocks"></div>
+      <div class="card">
+        <h2>After paste</h2>
+        <p class="summary" id="afterPaste"></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Copied</div>
+
+  <script>
+    const $ = (id) => document.getElementById(id)
+    const poolPresets = {
+      supportxmr: {
+        endpoint: "pool.supportxmr.com:443",
+        label: "SupportXMR",
+        dashboard: "https://www.supportxmr.com",
+        user: (wallet) => wallet,
+        password: (worker) => worker,
+        tls: true,
+        payout: "threshold min 0.1 XMR · leave Tari empty"
+      },
+      c3pool: {
+        endpoint: "auto.c3pool.org:443",
+        label: "C3Pool (0% fee)",
+        dashboard: "https://c3pool.com",
+        user: (wallet) => wallet,
+        password: (worker) => `worker=${worker}`,
+        tls: true,
+        payout: "C3Pool payout settings"
+      },
+      zephyr: {
+        endpoint: "zephyr.herominers.com:1123",
+        label: "HeroMiners Zephyr",
+        dashboard: "https://zephyr.herominers.com",
+        user: (wallet, worker) => `${wallet}.${worker}`,
+        password: () => "x",
+        tls: true,
+        payout: "min payout 0.1 ZEPH · payouts hourly · 0.9% pool fee"
+      }
+    }
+
+    // ---- HeroMiners Zephyr region picker ----
+    const ZEPH_PORT = 1123
+    const ZEPH_REGIONS = {
+      de: "Germany", fr: "France", es: "Spain", fi: "Finland", ru: "Russia",
+      ca: "Canada", us: "USA West", us2: "USA East", us3: "USA South", br: "Brazil",
+      hk: "Hong Kong", kr: "South Korea", sg: "Singapore", tr: "Turkey", au: "Australia"
+    }
+    const LOCATION_CHOICES = {
+      pl: { r: "de", n: "Poland" }, ch: { r: "de", n: "Switzerland" },
+      gb: { r: "fr", n: "UK" }, sg: { r: "sg", n: "Singapore" },
+      use: { r: "us2", n: "US East" }, usw: { r: "us", n: "US West" }
+    }
+    const COUNTRY_TO_REGION = {
+      PL: "de", DE: "de", AT: "de", CZ: "de", SK: "de", HU: "de", RO: "de", BG: "de",
+      HR: "de", SI: "de", RS: "de", NL: "de", BE: "de", LU: "de", DK: "de", IT: "de",
+      CH: "de", SE: "fi", NO: "fi", FI: "fi", EE: "fi", LV: "fi", LT: "fi", IS: "de",
+      GB: "fr", IE: "fr", FR: "fr", MC: "fr", ES: "es", PT: "es", AD: "es", MA: "es",
+      TR: "tr", GR: "tr", CY: "tr", IL: "tr", AE: "tr", SA: "tr", QA: "tr", JO: "tr",
+      LB: "tr", IQ: "tr", EG: "tr", RU: "ru", BY: "ru", KZ: "ru", UA: "de", MD: "de",
+      SG: "sg", MY: "sg", ID: "sg", TH: "sg", VN: "sg", PH: "sg", BN: "sg", KH: "sg",
+      LA: "sg", MM: "sg", IN: "sg", BD: "sg", LK: "sg", NP: "sg", PK: "sg", MV: "sg",
+      CN: "hk", HK: "hk", TW: "hk", MO: "hk", MN: "hk", JP: "kr", KR: "kr",
+      AU: "au", NZ: "au", BR: "br", AR: "br", CL: "br", UY: "br", PY: "br", BO: "br",
+      PE: "br", CO: "br", VE: "br", EC: "br", CA: "ca", GL: "ca", US: "us2",
+      MX: "us3", GT: "us3", CR: "us3", PA: "us3", DO: "us3", JM: "us3", PR: "us3", TT: "us3",
+      ZA: "de", NG: "de", KE: "de", GH: "de", TZ: "tr", ET: "tr"
+    }
+    let autoDetect = null // null = pending, "failed", or { code, country, region }
+
+    // ---- per-coin wallet memory: switching pool swaps the address automatically ----
+    const DEFAULT_WALLETS = {
+      xmr: "48J7Q5tSfms3SwXL7QnJ5e3CcDz8VmsZVhRuhrX45rzMKi8wotGqptZXzfqZXo7KXpD4xn1vsbQJP7XCazWPqyLZ7pzXByG",
+      zeph: "ZEPHsA64Mc4gqt17zGa1L26CaNdAKzk3AivdvEd6sydtZCdsZdGu6j1ehG2ZGN4a8m8bVbRsgND3ib7r7oHtHqYwLAkyV8mchAq"
+    }
+    const walletByCoin = {
+      xmr: localStorage.getItem("walletXMR") || DEFAULT_WALLETS.xmr,
+      zeph: localStorage.getItem("walletZEPH") || DEFAULT_WALLETS.zeph
+    }
+    const currentCoin = () => ($("poolPreset").value === "zephyr" ? "zeph" : "xmr")
+    $("wallet").addEventListener("input", () => {
+      walletByCoin[currentCoin()] = $("wallet").value.trim()
+    })
+
+    function zephEndpoint() {
+      const v = $("region").value
+      if (v !== "auto") {
+        if (LOCATION_CHOICES[v]) {
+          const k = LOCATION_CHOICES[v].r
+          return { host: `${k}.zephyr.herominers.com`, key: k, via: `${LOCATION_CHOICES[v].n} → ${ZEPH_REGIONS[k]}` }
+        }
+        if (ZEPH_REGIONS[v]) return { host: `${v}.zephyr.herominers.com`, key: v, via: ZEPH_REGIONS[v] }
+      }
+      if (autoDetect && autoDetect !== "failed") {
+        const k = autoDetect.region
+        return { host: `${k}.zephyr.herominers.com`, key: k, via: `auto: ${autoDetect.country} → ${ZEPH_REGIONS[k]}` }
+      }
+      return { host: "zephyr.herominers.com", key: null, via: autoDetect === "failed" ? "auto: not detected — global fallback" : "auto: detecting…" }
+    }
+
+    function updateRegionStatus() {
+      const s = $("regionStatus")
+      if ($("region").value !== "auto") {
+        const z = zephEndpoint()
+        s.textContent = `Manual: ${z.via} → ${z.host}`
+      } else if (autoDetect === null) {
+        s.textContent = "Detecting this PC's country…"
+      } else if (autoDetect === "failed") {
+        s.textContent = "Couldn't auto-detect — pick your miner's country above."
+      } else {
+        s.textContent = `Detected: ${autoDetect.country} (${autoDetect.code}) → ${autoDetect.region}.zephyr.herominers.com (${ZEPH_REGIONS[autoDetect.region]})`
+      }
+    }
+
+    async function detectCountry() {
+      if (autoDetect !== null) { updateRegionStatus(); return }
+      updateRegionStatus()
+      const finish = (cc, name) => {
+        const k = COUNTRY_TO_REGION[cc] || "de"
+        autoDetect = { code: cc, country: name, region: k }
+        updateRegionStatus()
+        if ($("poolPreset").value === "zephyr" && $("region").value === "auto") $("genBtn").click()
+      }
+      try {
+        const r = await fetch("https://ipwho.is/", { cache: "no-store" })
+        const j = await r.json()
+        if (j && j.success !== false && j.country_code) return finish(j.country_code, j.country || j.country_code)
+        throw new Error("ipwho.is failed")
+      } catch (e) {}
+      try {
+        const r2 = await fetch("https://ipapi.co/json/", { cache: "no-store" })
+        const j2 = await r2.json()
+        if (j2 && j2.country_code) return finish(j2.country_code, j2.country_name || j2.country_code)
+        throw new Error("ipapi.co failed")
+      } catch (e) {
+        autoDetect = "failed"
+        updateRegionStatus()
+        if ($("poolPreset").value === "zephyr" && $("region").value === "auto") $("genBtn").click()
+      }
+    }
+
+    function syncPoolPreset() {
+      const key = $("poolPreset").value
+      const preset = poolPresets[key]
+      $("pool").value = key === "zephyr" ? `${zephEndpoint().host}:${ZEPH_PORT}` : preset.endpoint
+      $("tls").checked = preset.tls
+      $("tls").disabled = preset.tls === false
+      $("walletLabel").textContent = key === "zephyr" ? "Wallet address (ZEPH)" : "Wallet address (XMR)"
+      $("wallet").value = walletByCoin[currentCoin()]
+      $("regionWrap").classList.toggle("hidden", key !== "zephyr")
+      if (key === "zephyr") {
+        if ($("region").value === "auto") detectCountry()
+        updateRegionStatus()
+      }
+    }
+
+    $("poolPreset").onchange = () => {
+      syncPoolPreset()
+      $("genBtn").click()
+    }
+    $("region").onchange = () => {
+      localStorage.setItem("zephRegion", $("region").value)
+      if ($("region").value === "auto") detectCountry()
+      updateRegionStatus()
+      if ($("poolPreset").value === "zephyr") $("genBtn").click()
+    }
+    $("region").value = localStorage.getItem("zephRegion") || "auto"
+    syncPoolPreset()
+
+    function toast(msg) {
+      const t = $("toast")
+      t.textContent = msg
+      t.classList.add("show")
+      setTimeout(() => t.classList.remove("show"), 1600)
+    }
+
+    function copyText(text, btn) {
+      navigator.clipboard.writeText(text).then(() => {
+        if (btn) {
+          const old = btn.textContent
+          btn.textContent = "Copied!"
+          btn.classList.add("done")
+          setTimeout(() => {
+            btn.textContent = old
+            btn.classList.remove("done")
+          }, 1200)
+        }
+        toast("Copied to clipboard")
+      }).catch(() => {
+        const ta = document.createElement("textarea")
+        ta.value = text
+        document.body.appendChild(ta)
+        ta.select()
+        document.execCommand("copy")
+        document.body.removeChild(ta)
+        toast("Copied")
+      })
+    }
+
+    function build() {
+      const wallet = $("wallet").value.trim()
+      localStorage.setItem(currentCoin() === "zeph" ? "walletZEPH" : "walletXMR", wallet)
+      const worker = ($("worker").value.trim() || "vps1").replace(/[\s.]+/g, "")
+      const threads = Math.max(1, parseInt($("threads").value, 10) || 4)
+      const presetKey = $("poolPreset").value
+      const preset = poolPresets[presetKey]
+      const isZeph = presetKey === "zephyr"
+      const zeph = isZeph ? zephEndpoint() : null
+      const pool = isZeph ? `${zeph.host}:${ZEPH_PORT}` : preset.endpoint
+      const poolUser = preset.user(wallet, worker)
+      const poolPassword = preset.password(worker)
+      const hp = Math.max(0, parseInt($("hugepages").value, 10) || 1280)
+      const tmuxName = ($("tmux").value.trim() || "mine").replace(/\s+/g, "")
+      const ver = ($("version").value.trim() || "6.22.0")
+      const tls = $("tls").checked
+      const useHuge = $("useHuge").checked
+      const useTmux = $("useTmux").checked
+      const rush = $("rush").checked
+      const allInOne = $("allInOne").checked
+      const configMethod = $("configMethod").checked
+      const maxhr = $("maxhr").checked
+
+      if (presetKey === "zephyr") {
+        if (!wallet.startsWith("ZEPH") || wallet.length < 95) {
+          alert("Paste a full Zephyr (ZEPH) wallet address — it starts with \"ZEPH\" and is 99 characters.")
+          return null
+        }
+      } else if (!wallet || wallet.length < 90) {
+        alert("Paste a full Monero wallet address first.")
+        return null
+      } else if (wallet.startsWith("ZEPH")) {
+        alert("This looks like a ZEPH wallet — switch the Mining pool to HeroMiners Zephyr first.")
+        return null
+      }
+
+      const tar = `xmrig-${ver}-linux-static-x64.tar.gz`
+      const url = `https://github.com/xmrig/xmrig/releases/download/v${ver}/${tar}`
+      const dir = `xmrig-${ver}`
+
+      let flags = " --donate-level 0"
+      if (tls && preset.tls) flags += " -k --tls"
+      if (useHuge) flags += " --huge-pages"
+      if (useHuge && maxhr) flags += " --huge-pages-jit"
+      flags += ` -t ${threads}`
+
+      const minerCmd = `./xmrig -o ${pool} -u ${poolUser} -p ${poolPassword}${flags}`
+      const runLine = `cd /tmp/${dir} && ${maxhr ? "sudo " : ""}${minerCmd}`
+
+      const blocks = []
+
+      if (allInOne) {
+        const oneLine = [
+          "sudo apt update -y",
+          "sudo apt install -y wget tar tmux curl",
+          "cd /tmp",
+          `(wget ${url} || curl -L -o ${tar} ${url})`,
+          `tar xzf ${tar}`,
+          ...(hp > 0 ? [
+            `sudo sysctl -w vm.nr_hugepages=${hp}`,
+            `echo 'vm.nr_hugepages=${hp}' | sudo tee -a /etc/sysctl.conf`
+          ] : []),
+          `tmux new-session -d -s ${tmuxName} 'cd /tmp/${dir} && ${maxhr ? `sudo ${minerCmd}` : minerCmd}'`,
+          `echo "=== OpenClaw on ${preset.label} in tmux session '${tmuxName}' — you can close this window now ==="`,
+          "tmux ls"
+        ].join(" && ")
+        blocks.push({
+          title: "All‑in‑one — ONE paste, ONE line",
+          note: maxhr
+            ? `Paste once and wait. If your VPS user is NOT root, run tmux attach -t ${tmuxName} once and type your password — root unlocks MSR (+up to 15% hashrate).`
+            : "Paste once and wait 1–2 min. No Ctrl+B needed — tmux starts already detached.",
+          code: oneLine
+        })
+      } else if (rush) {
+        blocks.push({
+          title: "Rush — all in one (30‑min trial)",
+          note: "Paste once. No tmux needed if server dies in 30 min." + (maxhr ? " Type your VPS password when asked (MSR = +up to 15%)." : ""),
+          code: [
+            "sudo apt update -y && sudo apt install -y wget tar curl",
+            "cd /tmp",
+            `wget ${url}`,
+            `tar xzf ${tar}`,
+            `cd ${dir}`,
+            hp > 0 ? `sudo sysctl -w vm.nr_hugepages=${hp}` : null,
+            `${maxhr ? "sudo " : ""}${minerCmd}`
+          ].filter(Boolean).join("\n")
+        })
+      } else {
+        blocks.push({
+          title: "Step 1 — Install tools",
+          note: "Paste and wait until finished",
+          code: "sudo apt update\nsudo apt install -y wget tar tmux curl"
+        })
+        blocks.push({
+          title: "Step 2 — Download XMRig",
+          note: "Must show file named xmrig after ls",
+          code: [
+            "cd /tmp",
+            `wget ${url}`,
+            `tar xzf ${tar}`,
+            `cd ${dir}`,
+            "ls"
+          ].join("\n")
+        })
+        blocks.push({
+          title: "Step 2b — If wget failed, use curl",
+          note: "Only if step 2 failed",
+          code: [
+            "cd /tmp",
+            `curl -L -o ${tar} ${url}`,
+            `tar xzf ${tar}`,
+            `cd ${dir}`,
+            "ls"
+          ].join("\n")
+        })
+        if (hp > 0) {
+          blocks.push({
+            title: "Step 3 — Huge pages",
+            note: `Reserves ~${(hp * 2 / 1024).toFixed(1)} GB (2MB pages). 1280 is enough for RandomX (XMR/ZEPH) on 8GB.`,
+            code: [
+              `sudo sysctl -w vm.nr_hugepages=${hp}`,
+              `echo 'vm.nr_hugepages=${hp}' | sudo tee -a /etc/sysctl.conf`
+            ].join("\n")
+          })
+        }
+        if (useTmux) {
+          blocks.push({
+            title: "Step 4 — Start tmux",
+            note: "You enter a session named " + tmuxName,
+            code: `tmux new -s ${tmuxName}`
+          })
+        }
+        blocks.push({
+          title: useTmux ? "Step 5 — Start miner (ONE line)" : "Step 4 — Start miner (ONE line)",
+          note: "Right‑click paste in PuTTY. Do NOT break the wallet across lines." + (maxhr ? " Password prompt = MSR unlock (+up to 15% hashrate)." : ""),
+          code: runLine
+        })
+        if (useTmux) {
+          blocks.push({
+            title: "Step 6 — Detach (keep running)",
+            note: "Keyboard only — not a paste command",
+            code: "Press: Ctrl+B   then   D\n\nThen you can close PuTTY.\nCome back: tmux attach -t " + tmuxName
+          })
+        }
+      }
+
+      if (configMethod) {
+        const cfg = `{
+  "autosave": true,
+  "cpu": true,
+  "opencl": false,
+  "cuda": false,
+  "donate-level": 0,
+  "pools": [
+    {
+      "url": "${pool}",
+      "user": "${poolUser}",
+          "pass": "${poolPassword}",
+          "tls": ${tls && preset.tls ? "true" : "false"},
+      "keepalive": true
+    }
+  ]
+}`
+        blocks.push({
+          title: "Alt — config.json (avoids address line-break)",
+          note: presetKey === "zephyr"
+            ? "Run after download. Worker = the part after the dot in user."
+            : "Run after download. Change worker only in pass if needed.",
+          code: [
+            `cd /tmp/${dir}`,
+            "cat > config.json << 'EOF'",
+            cfg,
+            "EOF",
+            useTmux ? `tmux new -s ${tmuxName}` : null,
+            `cd /tmp/${dir} && ${maxhr ? "sudo " : ""}./xmrig -c config.json${useHuge ? " --huge-pages" : ""} -t ${threads}`,
+            useTmux ? "\n# Then Ctrl+B, D to detach" : null
+          ].filter(Boolean).join("\n")
+        })
+      }
+
+      blocks.push({
+        title: "Later — reattach / check",
+        note: "On next SSH login",
+        code: [
+          (useTmux || allInOne) ? `tmux attach -t ${tmuxName}` : "# miner must be in foreground or use tmux next time",
+          "ps aux | grep xmrig | grep -v grep",
+          `# Dashboard: ${preset.dashboard}`,
+          `# Wallet: ${wallet}`
+        ].join("\n")
+      })
+
+      const pct = threads <= 4 ? `~${Math.min(100, threads * 25)}%` : "high"
+      const summary =
+        `<strong>Worker:</strong> ${worker} &nbsp;·&nbsp; <strong>Threads:</strong> ${threads} (${pct} on 4-core style) &nbsp;·&nbsp; ` +
+        `<strong>Pool:</strong> ${preset.label} (${pool}${isZeph ? ` · ${zeph.via}` : ""})<br/>` +
+        `<strong>Wallet:</strong> ${wallet.slice(0, 12)}…${wallet.slice(-8)}<br/>` +
+        `<strong>Huge pages:</strong> ${hp || "off"} &nbsp;·&nbsp; <strong>Tmux:</strong> ${(useTmux || allInOne) ? tmuxName : "no"} &nbsp;·&nbsp; <strong>Root/MSR:</strong> ${maxhr ? "on" : "off"} &nbsp;·&nbsp; <strong>Donate:</strong> 0%<br/>` +
+        `<strong>Same wallet on all VPS</strong> = one ${preset.label} balance. ${preset.payout}.`
+
+      return { blocks, summary, tmuxName, mode: allInOne ? "allInOne" : "steps", allText: blocks.map(b => `### ${b.title}\n${b.code}`).join("\n\n") }
+    }
+
+    function render(data) {
+      if (!data) return
+      $("results").classList.remove("hidden")
+      $("summary").innerHTML = data.summary
+      if (data.mode === "allInOne") {
+        $("afterPaste").innerHTML =
+          `1. Wait for <strong>MINING STARTED</strong> (1–2 min) — nothing to press, ever<br />` +
+          `2. Close PuTTY whenever you like — mining keeps running (tmux is already detached)<br />` +
+          `3. Watch it live: <strong>tmux attach -t ${data.tmuxName}</strong> — leave with <strong>Ctrl+B</strong> then <strong>D</strong><br />` +
+          `4. Hashrate: while attached, press <strong>h</strong> then Enter<br />` +
+          `5. Pool: <a href="${poolPresets[$("poolPreset").value].dashboard}" target="_blank" rel="noopener" style="color:var(--blue)">${poolPresets[$("poolPreset").value].label}</a> → check your wallet dashboard`
+      } else {
+        const preset = poolPresets[$("poolPreset").value]
+        $("afterPaste").innerHTML =
+          `1. Wait for <strong>accepted</strong> and <strong>READY threads</strong><br />` +
+          `2. Detach tmux: <strong>Ctrl+B</strong> then <strong>D</strong> (keeps mining if you close PuTTY)<br />` +
+          `3. Come back later: <code style="font-family:JetBrains Mono;font-size:0.8rem;background:#0a0e13;padding:2px 6px;border-radius:4px;border:1px solid var(--line)">tmux attach -t ${data.tmuxName}</code><br />` +
+          `4. Hashrate in miner: press <strong>h</strong> then Enter<br />` +
+          `5. Pool dashboard: <a href="${preset.dashboard}" target="_blank" rel="noopener" style="color:var(--blue)">${preset.label}</a> → your wallet · <strong>${preset.payout}</strong>`
+      }
+      const host = $("blocks")
+      host.innerHTML = "<h2>Commands — copy each block in order</h2>"
+      data.blocks.forEach((b, i) => {
+        const div = document.createElement("div")
+        div.className = "out-block"
+        div.innerHTML = `
+          <div class="out-head">
+            <span>${b.title} <small>${b.note || ""}</small></span>
+            <button type="button" class="btn-copy" data-i="${i}">Copy</button>
+          </div>
+          <pre id="pre-${i}"></pre>
+        `
+        host.appendChild(div)
+        $(`pre-${i}`).textContent = b.code
+        div.querySelector("button").onclick = function () {
+          copyText(b.code, this)
+        }
+      })
+      $("results").scrollIntoView({ behavior: "smooth", block: "start" })
+    }
+
+    $("genBtn").onclick = () => {
+      const data = build()
+      if (data) {
+        window._lastAll = data.allText
+        render(data)
+      }
+    }
+    $("copyAllBtn").onclick = () => {
+      const data = build()
+      if (!data) return
+      window._lastAll = data.allText
+      render(data)
+      copyText(data.allText)
+    }
+
+    // generate once on load
+    $("genBtn").click()
+  </script>
+</body>
+</html>
